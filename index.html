@@ -1,0 +1,2005 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+    <title>MessCal - Simple Monthly Meal & Expense Manager</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: #f0f2f5;
+            padding: 10px;
+            color: #333;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            flex: 1;
+            width: 100%;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
+        }
+
+        .header h1 {
+            font-size: 1.5em;
+            margin-bottom: 5px;
+        }
+
+        .header p {
+            opacity: 0.9;
+            font-size: 0.9em;
+        }
+
+        /* MOBILE FIRST - Default styles for mobile */
+        .main-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .section {
+            background: white;
+            padding: 15px;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+        }
+
+        .section h2 {
+            color: #6366f1;
+            margin-bottom: 15px;
+            font-size: 1.1em;
+            border-bottom: 2px solid #e5e7eb;
+            padding-bottom: 10px;
+        }
+
+        /* Input rows - Stack on mobile */
+        .input-row {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .input-group {
+            margin-bottom: 0;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            font-size: 0.9em;
+            color: #555;
+        }
+
+        input,
+        select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: all 0.3s;
+        }
+
+        input:focus,
+        select:focus {
+            outline: none;
+            border-color: #6366f1;
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+        }
+
+        .btn {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 8px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            min-height: 44px;
+        }
+
+        .btn-add {
+            background: #6366f1;
+            color: white;
+            width: 100%;
+            padding: 14px;
+            font-size: 15px;
+        }
+
+        .btn-add:hover {
+            background: #4f46e5;
+            transform: translateY(-1px);
+        }
+
+        .btn-small {
+            padding: 4px 8px;
+            font-size: 12px;
+            min-height: 28px;
+            min-width: 28px;
+        }
+
+        .btn-edit {
+            background: #e5e7eb;
+            color: #6b7280;
+            border: 1px solid #d1d5db;
+        }
+
+        .btn-edit:hover {
+            background: #d1d5db;
+            color: #374151;
+        }
+
+        .btn-delete {
+            background: #fee2e2;
+            color: #991b1b;
+            border: 1px solid #fecaca;
+        }
+
+        .btn-delete:hover {
+            background: #fecaca;
+            color: #7f1d1d;
+        }
+
+        .btn-save {
+            background: #10b981;
+            color: white;
+        }
+
+        .btn-cancel {
+            background: #6b7280;
+            color: white;
+        }
+
+        /* Icon-only small buttons */
+        .btn-icon {
+            padding: 6px;
+            font-size: 16px;
+            min-height: 28px;
+            min-width: 28px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* List items - Stack on mobile */
+        .list-item {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            padding: 12px;
+            background: #f9fafb;
+            border-radius: 8px;
+            margin-bottom: 8px;
+            border-left: 4px solid #6366f1;
+        }
+
+        .list-item:hover {
+            background: #f3f4f6;
+        }
+
+        .list-item-content {
+            width: 100%;
+            word-wrap: break-word;
+        }
+
+        .list-item-actions {
+            display: flex;
+            gap: 6px;
+            width: 100%;
+            justify-content: flex-end;
+        }
+
+        .list-item-actions .btn {
+            flex: 0 0 auto;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 20px;
+            color: #9ca3af;
+            font-size: 0.9em;
+        }
+
+        /* Summary Box */
+        .summary-box {
+            background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 12px;
+        }
+
+        .summary-box h2 {
+            color: white;
+            border-bottom: 2px solid rgba(255, 255, 255, 0.3);
+            margin-bottom: 15px;
+        }
+
+        .summary-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            font-size: 0.95em;
+        }
+
+        .summary-item:last-child {
+            border-bottom: none;
+        }
+
+        .summary-highlight {
+            font-size: 1.05em;
+            font-weight: bold;
+        }
+
+        .report-section {
+            width: 100%;
+        }
+
+        /* Table - Mobile scrollable */
+        .table-wrapper {
+            width: 100%;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            margin-top: 15px;
+            border-radius: 8px;
+            box-shadow: 0 0 0 1px #e5e7eb;
+            display: block;
+            max-width: 100%;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 700px;
+            display: table;
+        }
+
+        th,
+        td {
+            padding: 10px 8px;
+            text-align: left;
+            border-bottom: 1px solid #e5e7eb;
+            font-size: 0.85em;
+            white-space: nowrap;
+        }
+
+        th {
+            background: #f9fafb;
+            font-weight: 600;
+            color: #6366f1;
+            position: sticky;
+            top: 0;
+        }
+
+        tbody tr:hover {
+            background: #f9fafb;
+        }
+
+        .positive {
+            color: #10b981;
+            font-weight: bold;
+        }
+
+        .negative {
+            color: #ef4444;
+            font-weight: bold;
+        }
+
+        /* Action buttons - Stack on mobile */
+        .action-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        /* Quick stats - Stack on mobile */
+        .quick-stats {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 1.8em;
+            font-weight: bold;
+            display: block;
+        }
+
+        .stat-label {
+            font-size: 0.85em;
+            opacity: 0.9;
+            margin-top: 5px;
+        }
+
+        .simple-input {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            animation: fadeIn 0.3s;
+            padding: 10px;
+        }
+
+        .modal.active {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            width: 100%;
+            max-width: 500px;
+            animation: slideDown 0.3s;
+        }
+
+        .modal-header {
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #e5e7eb;
+        }
+
+        .modal-header h3 {
+            color: #6366f1;
+            font-size: 1.3em;
+        }
+
+        .modal-body {
+            margin-bottom: 20px;
+        }
+
+        .modal-footer {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+        }
+
+        .modal-footer .btn {
+            flex: 1;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-50px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .divider {
+            margin: 15px 0;
+            border-top: 2px dashed #e5e7eb;
+        }
+
+        .print-summary,
+        .print-info,
+        .print-header {
+            display: none;
+        }
+
+        /* Print mode classes */
+        body.print-summary-mode .report-section table {
+            display: none !important;
+        }
+
+        body.print-full-mode .print-summary,
+        body.print-full-mode .print-info {
+            display: none !important;
+        }
+
+        .no-data-section {
+            text-align: center;
+            padding: 30px 20px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+            margin-bottom: 20px;
+        }
+
+        .no-data-section h3 {
+            color: #6366f1;
+            margin-bottom: 10px;
+        }
+
+        .no-data-section p {
+            color: #6b7280;
+            margin-bottom: 20px;
+        }
+
+        /* Footer */
+        .app-footer {
+            background: white;
+            border-top: 2px solid #e5e7eb;
+            padding: 20px;
+            text-align: center;
+            margin-top: 30px;
+            border-radius: 12px 12px 0 0;
+        }
+
+        .app-footer .copyright {
+            color: #6b7280;
+            font-size: 0.9em;
+            margin-bottom: 8px;
+        }
+
+        .app-footer .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-top: 8px;
+        }
+
+        .app-footer a {
+            color: #6366f1;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .app-footer a:hover {
+            text-decoration: underline;
+        }
+
+        /* ===================================
+           TABLET AND DESKTOP STYLES (480px+)
+           =================================== */
+
+        @media (min-width: 480px) {
+            body {
+                padding: 15px;
+            }
+
+            .header {
+                padding: 25px;
+            }
+
+            .header h1 {
+                font-size: 1.8em;
+            }
+
+            .section {
+                padding: 20px;
+            }
+
+            .quick-stats {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .stat-number {
+                font-size: 2em;
+            }
+
+            .list-item {
+                flex-direction: row;
+                justify-content: space-between;
+                align-items: center;
+            }
+
+            .list-item-actions {
+                width: auto;
+            }
+
+            .list-item-actions .btn {
+                flex: 0;
+            }
+
+            th,
+            td {
+                padding: 12px;
+                font-size: 0.9em;
+            }
+
+            .btn-small {
+                padding: 6px 10px;
+                font-size: 13px;
+                min-height: 32px;
+                min-width: 32px;
+            }
+
+            .btn-icon {
+                min-height: 32px;
+                min-width: 32px;
+            }
+        }
+
+        /* DESKTOP STYLES (768px+) */
+        @media (min-width: 768px) {
+            body {
+                padding: 20px;
+            }
+
+            .header h1 {
+                font-size: 2em;
+            }
+
+            .header p {
+                font-size: 1em;
+            }
+
+            .section {
+                padding: 25px;
+            }
+
+            .section h2 {
+                font-size: 1.3em;
+                margin-bottom: 20px;
+            }
+
+            .simple-input {
+                flex-direction: row;
+                align-items: flex-end;
+            }
+
+            .simple-input .btn {
+                width: auto;
+                white-space: nowrap;
+            }
+
+            .action-buttons {
+                flex-direction: row;
+                flex-wrap: wrap;
+            }
+
+            .action-buttons .btn {
+                flex: 1;
+                min-width: 200px;
+            }
+
+            th,
+            td {
+                font-size: 1em;
+            }
+
+            table {
+                min-width: auto;
+            }
+        }
+
+        /* LARGE DESKTOP (1024px+) */
+        @media (min-width: 1024px) {
+            .main-grid {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 20px;
+            }
+
+            .report-section {
+                grid-column: 1 / -1;
+            }
+
+            .mess-info-section {
+                grid-column: 1 / -1;
+            }
+
+            .summary-box {
+                position: sticky;
+                top: 20px;
+            }
+
+            .input-row {
+                display: grid;
+                grid-template-columns: 2fr 1fr 1fr auto;
+                gap: 10px;
+                align-items: end;
+            }
+
+            .input-row .btn-add {
+                width: auto;
+            }
+
+            .quick-stats {
+                grid-template-columns: repeat(4, 1fr);
+            }
+        }
+
+        /* PRINT STYLES */
+        @media print {
+            body {
+                background: white;
+                padding: 20px;
+            }
+
+            .print-header {
+                display: block !important;
+                page-break-after: avoid;
+                margin-bottom: 20px;
+                border: 2px solid #6366f1;
+                padding: 20px;
+                border-radius: 10px;
+            }
+
+            .print-header {
+                display: block !important;
+                page-break-after: avoid;
+                margin-bottom: 10px;
+                border: 1px solid #6366f1;
+                padding: 10px;
+                border-radius: 5px;
+            }
+
+            .print-header h1 {
+                color: #6366f1 !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+                margin-bottom: 8px;
+                font-size: 1.3em;
+            }
+
+            .print-header-info {
+                display: grid !important;
+                grid-template-columns: repeat(4, 1fr);
+                gap: 5px;
+                margin-bottom: 0;
+            }
+
+            .print-header-info div {
+                padding: 4px 6px;
+                background: #f9fafb;
+                border-radius: 3px;
+                font-size: 0.8em;
+            }
+
+            .print-header-info div strong {
+                font-size: 0.85em;
+            }
+
+            .container {
+                max-width: 100%;
+            }
+
+            .header {
+                display: none !important;
+            }
+
+            .section:not(.report-section) {
+                display: none !important;
+            }
+
+            .mess-info-section {
+                display: none !important;
+            }
+
+            .summary-box {
+                display: none !important;
+            }
+
+            .action-buttons {
+                display: none !important;
+            }
+
+            .main-grid {
+                display: block;
+            }
+
+            .report-section {
+                box-shadow: none;
+                padding: 0;
+            }
+
+            .report-section h2 {
+                color: #6366f1;
+                margin-top: 20px;
+            }
+
+            table {
+                page-break-inside: auto;
+                min-width: auto;
+            }
+
+            tr {
+                page-break-inside: avoid;
+                page-break-after: auto;
+            }
+
+            thead {
+                display: table-header-group;
+                background: #6366f1 !important;
+                color: white !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+
+            th {
+                background: #6366f1 !important;
+                color: white !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+
+            .positive {
+                color: #10b981 !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+
+            .negative {
+                color: #ef4444 !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+
+            .print-summary {
+                display: grid !important;
+                grid-template-columns: repeat(4, 1fr);
+                gap: 15px;
+                margin: 20px 0;
+                page-break-after: avoid;
+            }
+
+            .print-summary-card {
+                border: 2px solid #6366f1;
+                padding: 15px;
+                text-align: center;
+                border-radius: 8px;
+                page-break-inside: avoid;
+            }
+
+            .print-summary-card h3 {
+                font-size: 1.5em;
+                color: #6366f1;
+                margin-bottom: 5px;
+            }
+
+            .print-summary-card p {
+                color: #666;
+                font-size: 0.9em;
+            }
+
+            .print-info {
+                display: grid !important;
+                grid-template-columns: repeat(2, 1fr);
+                gap: 10px;
+                margin: 20px 0;
+                padding: 15px;
+                background: #f9fafb;
+                border-radius: 8px;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+                page-break-after: avoid;
+            }
+
+            .print-info {
+                display: grid !important;
+                grid-template-columns: repeat(2, 1fr);
+                gap: 10px;
+                margin: 20px 0;
+                padding: 15px;
+                background: #f9fafb;
+                border-radius: 8px;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+                page-break-after: avoid;
+            }
+
+            .print-info-item {
+                display: flex;
+                justify-content: space-between;
+                padding: 8px;
+                border-bottom: 1px solid #e5e7eb;
+            }
+
+            .print-info-item strong {
+                color: #6366f1;
+            }
+
+            /* Print Summary Mode - Show summary, hide table */
+            body.print-summary-mode .print-summary {
+                display: grid !important;
+            }
+
+            body.print-summary-mode .print-info {
+                display: grid !important;
+            }
+
+            body.print-summary-mode .report-section h2,
+            body.print-summary-mode .table-wrapper {
+                display: none !important;
+            }
+
+            /* Print Full Report Mode - Hide summary, show table */
+            body.print-full-mode .print-summary {
+                display: none !important;
+            }
+
+            body.print-full-mode .print-info {
+                display: none !important;
+            }
+
+            .app-footer {
+                display: block !important;
+                text-align: center;
+                margin-top: 20px;
+                padding-top: 20px;
+                border-top: 2px solid #e5e7eb;
+                page-break-before: avoid;
+            }
+
+            .app-footer .footer-links a {
+                color: #6366f1 !important;
+                font-weight: bold;
+            }
+
+            .modal {
+                display: none !important;
+            }
+
+            .no-data-section {
+                display: none !important;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🧮 MessCal</h1>
+            <p>Simple Monthly Meal & Expense Manager</p>
+        </div>
+
+        <!-- Import Option Section (shown when no data OR always available) -->
+        <div class="no-data-section" id="importSection">
+            <h3>📤 Import Previous Data</h3>
+            <p>Have a backup file? Import it here to restore your data</p>
+            <button class="btn btn-add" onclick="document.getElementById('importFile').click()"
+                style="background: #8b5cf6; max-width: 300px; margin: 0 auto;">📤 Import Data</button>
+            <input type="file" id="importFile" accept=".json" style="display: none;" onchange="importData(event)">
+        </div>
+
+        <div class="main-grid" id="mainContent">
+            <!-- Mess Info Section (New) -->
+            <div class="section mess-info-section">
+                <h2>ℹ️ Mess Information</h2>
+                <div class="input-row">
+                    <div class="input-group">
+                        <label>Mess Name</label>
+                        <input type="text" id="messName" placeholder="Enter mess name">
+                    </div>
+                    <div class="input-group">
+                        <label>Manager Name</label>
+                        <input type="text" id="managerName" placeholder="Enter manager name">
+                    </div>
+                    <div class="input-group">
+                        <label>Month & Year</label>
+                        <input type="month" id="messMonth">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Left Column -->
+            <div>
+                <!-- Boarders Section with Meals -->
+                <div class="section">
+                    <h2>👥 Add Boarder</h2>
+
+                    <!-- List First -->
+                    <div id="boarderList" style="margin-bottom: 20px;">
+                        <div class="empty-state">No boarders added</div>
+                    </div>
+
+                    <div class="divider"></div>
+
+                    <!-- Input Fields Below -->
+                    <div class="input-row">
+                        <div class="input-group">
+                            <label>Name</label>
+                            <input type="text" id="boarderName" placeholder="Enter boarder name">
+                        </div>
+                        <div class="input-group">
+                            <label>Deposit (৳)</label>
+                            <input type="number" id="boarderDeposit" placeholder="0">
+                        </div>
+                        <div class="input-group">
+                            <label>Meals</label>
+                            <input type="number" id="boarderMeals" placeholder="0">
+                        </div>
+                        <div>
+                            <label>&nbsp;</label>
+                            <button class="btn btn-add" onclick="addBoarder()">➕ Add</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Bazar Costs (Simplified) -->
+                <div class="section" style="margin-top: 20px;">
+                    <h2>🛒 Bazar Costs</h2>
+
+                    <!-- List First -->
+                    <div id="bazarList" style="margin-bottom: 20px;">
+                        <div class="empty-state">No costs added</div>
+                    </div>
+
+                    <div class="divider"></div>
+
+                    <!-- Input Field Below -->
+                    <div class="simple-input">
+                        <div class="input-group" style="flex: 1; margin-bottom: 0;">
+                            <label>Amount (৳)</label>
+                            <input type="number" id="bazarAmount" placeholder="Enter amount"
+                                onkeypress="handleBazarEnter(event)">
+                        </div>
+                        <button class="btn btn-add" onclick="addBazar()" style="width: auto;">➕ Add</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Column -->
+            <div>
+                <!-- Extra Expenses (Simplified) -->
+                <div class="section">
+                    <h2>💰 Extra Expenses</h2>
+
+                    <!-- List First -->
+                    <div id="expenseList" style="margin-bottom: 20px;">
+                        <div class="empty-state">No expenses added</div>
+                    </div>
+
+                    <div class="divider"></div>
+
+                    <!-- Input Field Below -->
+                    <div class="simple-input">
+                        <div class="input-group" style="flex: 1; margin-bottom: 0;">
+                            <label>Amount (৳)</label>
+                            <input type="number" id="expenseAmount" placeholder="Enter amount"
+                                onkeypress="handleExpenseEnter(event)">
+                        </div>
+                        <button class="btn btn-add" onclick="addExpense()" style="width: auto;">➕ Add</button>
+                    </div>
+                </div>
+
+                <!-- Summary Box -->
+                <div class="summary-box" style="margin-top: 20px;">
+                    <h2>📊 Summary</h2>
+
+                    <!-- Highlighted Stats -->
+                    <div class="quick-stats">
+                        <div class="stat-card">
+                            <span class="stat-number" id="totalBazarStat">৳0</span>
+                            <span class="stat-label">Total Bazar Cost</span>
+                        </div>
+                        <div class="stat-card">
+                            <span class="stat-number" id="totalExpenseStat">৳0</span>
+                            <span class="stat-label">Extra Expenses</span>
+                        </div>
+                        <div class="stat-card">
+                            <span class="stat-number" id="totalMealsSum">0</span>
+                            <span class="stat-label">Total Meals</span>
+                        </div>
+                        <div class="stat-card">
+                            <span class="stat-number" id="mealRateSum">৳0</span>
+                            <span class="stat-label">Meal Rate</span>
+                        </div>
+                    </div>
+
+                    <div style="margin-top: 20px; padding-top: 15px; border-top: 2px solid rgba(255, 255, 255, 0.3);">
+                        <div class="summary-item summary-highlight">
+                            <span>Total Boarder:</span>
+                            <span id="totalBoarder">0</span>
+                        </div>
+                        <div class="summary-item summary-highlight">
+                            <span>Total Deposit:</span>
+                            <span id="totalCollected">৳0</span>
+                        </div>
+                        <div class="summary-item summary-highlight">
+                            <span>Total Used:</span>
+                            <span id="totalCostSum">৳0</span>
+                        </div>
+                        <div class="summary-item summary-highlight">
+                            <span>Total Due:</span>
+                            <span id="totalDue">৳0</span>
+                        </div>
+                        <div class="summary-item summary-highlight" style="font-size: 1.1em; color: #fbbf24;">
+                            <span>Manager Will Get:</span>
+                            <span id="managerWillGet">৳0</span>
+                        </div>
+                        <div class="summary-item summary-highlight" style="font-size: 1.1em; color: #34d399;">
+                            <span>Manager Will Give:</span>
+                            <span id="managerWillGive">৳0</span>
+                        </div>
+                    </div>
+
+                    <!-- Print Summary Button -->
+                    <div class="action-buttons" style="margin-top: 15px;">
+                        <button class="btn btn-add" onclick="printSummary()"
+                            style="background: rgba(255, 255, 255, 0.2); border: 2px solid white;">🖨️ Print
+                            Summary</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Report Section -->
+            <div class="section report-section">
+                <!-- Print Header (visible only when printing) -->
+                <div class="print-header">
+                    <h1>🧮 MessCal Report</h1>
+                    <div class="print-header-info">
+                        <div><strong>Mess Name:</strong> <span id="printMessName">-</span></div>
+                        <div><strong>Manager:</strong> <span id="printManagerName">-</span></div>
+                        <div><strong>Month & Year:</strong> <span id="printMonthName">-</span></div>
+                        <div><strong>Print Date:</strong> <span id="printDateFull"></span></div>
+                    </div>
+                </div>
+
+                <!-- Print Summary (visible only when printing) -->
+                <div class="print-summary">
+                    <div class="print-summary-card">
+                        <h3 id="printTotalBazar">৳0</h3>
+                        <p>Total Bazar Cost</p>
+                    </div>
+                    <div class="print-summary-card">
+                        <h3 id="printTotalExpense">৳0</h3>
+                        <p>Extra Expenses</p>
+                    </div>
+                    <div class="print-summary-card">
+                        <h3 id="printTotalMeals">0</h3>
+                        <p>Total Meals</p>
+                    </div>
+                    <div class="print-summary-card">
+                        <h3 id="printMealRate">৳0</h3>
+                        <p>Meal Rate</p>
+                    </div>
+                </div>
+
+                <!-- Print Info (visible only when printing) -->
+                <div class="print-info">
+                    <div class="print-info-item">
+                        <span><strong>Total Boarder:</strong></span>
+                        <span id="printTotalBoarder">0</span>
+                    </div>
+                    <div class="print-info-item">
+                        <span><strong>Total Deposit:</strong></span>
+                        <span id="printTotalCollected">৳0</span>
+                    </div>
+                    <div class="print-info-item">
+                        <span><strong>Total Used:</strong></span>
+                        <span id="printTotalCost">৳0</span>
+                    </div>
+                    <div class="print-info-item">
+                        <span><strong>Total Due:</strong></span>
+                        <span id="printTotalDue">৳0</span>
+                    </div>
+                    <div class="print-info-item">
+                        <span><strong>Manager Will Get:</strong></span>
+                        <span id="printManagerWillGet">৳0</span>
+                    </div>
+                    <div class="print-info-item">
+                        <span><strong>Manager Will Give:</strong></span>
+                        <span id="printManagerWillGive">৳0</span>
+                    </div>
+                </div>
+
+                <h2>📋 Final Report</h2>
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Boarder</th>
+                                <th>Meals</th>
+                                <th>Meal Cost</th>
+                                <th>Extra</th>
+                                <th>Total Cost</th>
+                                <th>Deposit</th>
+                                <th>Get</th>
+                                <th>Give</th>
+                            </tr>
+                        </thead>
+                        <tbody id="reportTable">
+                            <tr>
+                                <td colspan="8" class="empty-state">No data available</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Print Report Button -->
+                <div class="action-buttons">
+                    <button class="btn btn-add" onclick="printFullReport()" style="background: #10b981;">🖨️ Print Final
+                        Report</button>
+                </div>
+            </div>
+
+            <!-- Export and Clear Section -->
+            <div class="section" style="grid-column: 1 / -1;">
+                <h2>⚙️ Data Management</h2>
+                <div class="action-buttons">
+                    <button class="btn btn-add" onclick="exportData()" style="background: #3b82f6;">💾 Export
+                        Data</button>
+                    <button class="btn btn-delete" onclick="resetData()">🗑️ Clear All Data</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="app-footer">
+        <div class="copyright">
+            © <span id="currentYear"></span> MessCal. | Developed by <a href="https://www.facebook.com/sejan.kp/"
+                target="_blank">Sejan</a>
+        </div>
+        <div class="footer-links">
+            <span>Made with ❤️</span>
+            <a href="https://messcal.netlify.app/" target="_blank">https://messcal.netlify.app/</a>
+        </div>
+    </div>
+
+    <!-- Edit Member Modal -->
+    <div id="editMemberModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>✏️ Edit Boarder</h3>
+            </div>
+            <div class="modal-body">
+                <div class="input-group">
+                    <label>Name</label>
+                    <input type="text" id="editBoarderName" placeholder="Enter boarder name">
+                </div>
+                <div class="input-group">
+                    <label>Deposit (৳)</label>
+                    <input type="number" id="editBoarderDeposit" placeholder="0">
+                </div>
+                <div class="input-group">
+                    <label>Meals</label>
+                    <input type="number" id="editBoarderMeals" placeholder="0">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-cancel" onclick="closeModal('editMemberModal')">Cancel</button>
+                <button class="btn btn-save" onclick="saveBoarderEdit()">Save Changes</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Market Cost Modal -->
+    <div id="editBazarModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>✏️ Edit Market Cost</h3>
+            </div>
+            <div class="modal-body">
+                <div class="input-group">
+                    <label>Amount (৳)</label>
+                    <input type="number" id="editBazarAmount" placeholder="Enter amount">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-cancel" onclick="closeModal('editBazarModal')">Cancel</button>
+                <button class="btn btn-save" onclick="saveBazarEdit()">Save Changes</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Expense Modal -->
+    <div id="editExpenseModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>✏️ Edit Expense</h3>
+            </div>
+            <div class="modal-body">
+                <div class="input-group">
+                    <label>Amount (৳)</label>
+                    <input type="number" id="editExpenseAmount" placeholder="Enter amount">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-cancel" onclick="closeModal('editExpenseModal')">Cancel</button>
+                <button class="btn btn-save" onclick="saveExpenseEdit()">Save Changes</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Custom Alert Modal -->
+    <div id="customAlert" class="modal">
+        <div class="modal-content" style="max-width: 400px;">
+            <div class="modal-header" style="border-bottom: none; padding-bottom: 0;">
+                <h3 id="alertIcon" style="font-size: 3em; margin: 0; text-align: center;">ℹ️</h3>
+            </div>
+            <div class="modal-body" style="text-align: center;">
+                <p id="alertMessage" style="font-size: 1.1em; color: #374151; margin: 0;"></p>
+            </div>
+            <div class="modal-footer" style="justify-content: center;">
+                <button class="btn btn-add" onclick="closeCustomAlert()" style="min-width: 120px;">OK</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Custom Confirm Modal -->
+    <div id="customConfirm" class="modal">
+        <div class="modal-content" style="max-width: 400px;">
+            <div class="modal-header" style="border-bottom: none; padding-bottom: 0;">
+                <h3 style="font-size: 3em; margin: 0; text-align: center;">❓</h3>
+            </div>
+            <div class="modal-body" style="text-align: center;">
+                <p id="confirmMessage" style="font-size: 1.1em; color: #374151; margin: 0;"></p>
+            </div>
+            <div class="modal-footer" style="justify-content: center;">
+                <button class="btn btn-cancel" onclick="closeCustomConfirm(false)" style="flex: 1;">Cancel</button>
+                <button class="btn btn-save" onclick="closeCustomConfirm(true)" style="flex: 1;">Confirm</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let data = {
+            boarders: [],
+            bazar: [],
+            expenses: [],
+            messInfo: {
+                messName: '',
+                managerName: '',
+                month: ''
+            }
+        };
+
+        let editMode = {
+            type: null,
+            id: null
+        };
+
+        // Custom Alert & Confirm Functions
+        let confirmCallback = null;
+
+        function customAlert(message, type = 'info') {
+            const icons = {
+                info: 'ℹ️',
+                success: '✅',
+                warning: '⚠️',
+                error: '❌'
+            };
+
+            document.getElementById('alertIcon').textContent = icons[type] || icons.info;
+            document.getElementById('alertMessage').textContent = message;
+            document.getElementById('customAlert').classList.add('active');
+        }
+
+        function closeCustomAlert() {
+            document.getElementById('customAlert').classList.remove('active');
+        }
+
+        function customConfirm(message, callback) {
+            document.getElementById('confirmMessage').textContent = message;
+            document.getElementById('customConfirm').classList.add('active');
+            confirmCallback = callback;
+        }
+
+        function closeCustomConfirm(result) {
+            document.getElementById('customConfirm').classList.remove('active');
+            if (confirmCallback) {
+                confirmCallback(result);
+                confirmCallback = null;
+            }
+        }
+
+        // Close modals on Escape key
+        document.addEventListener('keydown', function (event) {
+            if (event.key === 'Escape') {
+                closeCustomAlert();
+                closeCustomConfirm(false);
+            }
+        });
+
+        // Load data on page load
+        window.onload = function () {
+            loadData();
+        };
+
+        // Set current month on page load
+        window.addEventListener('DOMContentLoaded', function () {
+            const now = new Date();
+            const year = now.getFullYear();
+            const month = String(now.getMonth() + 1).padStart(2, '0');
+            document.getElementById('messMonth').value = `${year}-${month}`;
+
+            // Set dynamic year in footer
+            document.getElementById('currentYear').textContent = year;
+
+            // Load mess info from localStorage
+            loadMessInfo();
+        });
+
+        // Save mess info when changed
+        document.getElementById('messName').addEventListener('change', saveMessInfo);
+        document.getElementById('managerName').addEventListener('change', saveMessInfo);
+        document.getElementById('messMonth').addEventListener('change', saveMessInfo);
+
+        function saveMessInfo() {
+            data.messInfo = {
+                messName: document.getElementById('messName').value,
+                managerName: document.getElementById('managerName').value,
+                month: document.getElementById('messMonth').value
+            };
+            localStorage.setItem('messData', JSON.stringify(data));
+        }
+
+        function loadMessInfo() {
+            if (data.messInfo) {
+                document.getElementById('messName').value = data.messInfo.messName || '';
+                document.getElementById('managerName').value = data.messInfo.managerName || '';
+                if (data.messInfo.month) {
+                    document.getElementById('messMonth').value = data.messInfo.month;
+                }
+            }
+        }
+
+        function saveData() {
+            localStorage.setItem('messData', JSON.stringify(data));
+            updateAllViews();
+        }
+
+        function loadData() {
+            const saved = localStorage.getItem('messData');
+            if (saved) {
+                try {
+                    const parsed = JSON.parse(saved);
+
+                    // Force convert all to proper numbers
+                    data.boarders = (parsed.boarders || []).map(b => ({
+                        id: b.id,
+                        name: String(b.name),
+                        deposit: parseFloat(b.deposit) || 0,
+                        meals: parseInt(b.meals, 10) || 0
+                    }));
+
+                    data.bazar = (parsed.bazar || []).map(b => ({
+                        id: b.id,
+                        amount: parseFloat(b.amount) || 0
+                    }));
+
+                    data.expenses = (parsed.expenses || []).map(e => ({
+                        id: e.id,
+                        amount: parseFloat(e.amount) || 0
+                    }));
+
+                    data.messInfo = parsed.messInfo || {
+                        messName: '',
+                        managerName: '',
+                        month: ''
+                    };
+                } catch (error) {
+                    console.error('Error loading data:', error);
+                    data = { boarders: [], bazar: [], expenses: [], messInfo: { messName: '', managerName: '', month: '' } };
+                }
+            }
+            updateAllViews();
+        }
+
+        function updateAllViews() {
+            renderBoarders();
+            renderBazar();
+            renderExpenses();
+            calculateSummary();
+        }
+
+        // Modal Functions
+        function openModal(modalId) {
+            document.getElementById(modalId).classList.add('active');
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.remove('active');
+            editMode = { type: null, id: null };
+        }
+
+        // Close modal when clicking outside
+        window.onclick = function (event) {
+            if (event.target.classList.contains('modal')) {
+                event.target.classList.remove('active');
+                editMode = { type: null, id: null };
+            }
+        }
+
+        // Handle Enter key for Bazar input
+        function handleBazarEnter(event) {
+            if (event.key === 'Enter') {
+                event.preventDefault();
+                addBazar();
+            }
+        }
+
+        // Handle Enter key for Expense input
+        function handleExpenseEnter(event) {
+            if (event.key === 'Enter') {
+                event.preventDefault();
+                addExpense();
+            }
+        }
+
+        // === BOARDERS WITH MEALS ===
+        function addBoarder() {
+            const name = document.getElementById('boarderName').value.trim();
+            const depositInput = document.getElementById('boarderDeposit').value;
+            const mealsInput = document.getElementById('boarderMeals').value;
+
+            if (!name) {
+                customAlert('Please enter boarder name', 'warning');
+                return;
+            }
+
+            // Force proper number conversion
+            const deposit = parseFloat(depositInput) || 0;
+            const meals = parseInt(mealsInput, 10) || 0;
+
+            data.boarders.push({
+                id: Date.now(),
+                name: String(name),
+                deposit: deposit,
+                meals: meals
+            });
+
+            document.getElementById('boarderName').value = '';
+            document.getElementById('boarderDeposit').value = '';
+            document.getElementById('boarderMeals').value = '';
+            saveData();
+        }
+
+        function editBoarder(id) {
+            const boarder = data.boarders.find(b => b.id === id);
+            document.getElementById('editBoarderName').value = boarder.name;
+            document.getElementById('editBoarderDeposit').value = boarder.deposit;
+            document.getElementById('editBoarderMeals').value = boarder.meals;
+            editMode = { type: 'boarder', id };
+            openModal('editMemberModal');
+        }
+
+        function saveBoarderEdit() {
+            const name = document.getElementById('editBoarderName').value.trim();
+            const depositInput = document.getElementById('editBoarderDeposit').value;
+            const mealsInput = document.getElementById('editBoarderMeals').value;
+
+            if (!name) {
+                customAlert('Please enter boarder name', 'warning');
+                return;
+            }
+
+            // Force proper number conversion
+            const deposit = parseFloat(depositInput) || 0;
+            const meals = parseInt(mealsInput, 10) || 0;
+
+            const boarder = data.boarders.find(b => b.id === editMode.id);
+            if (boarder) {
+                boarder.name = String(name);
+                boarder.deposit = deposit;
+                boarder.meals = meals;
+            }
+
+            closeModal('editMemberModal');
+            saveData();
+        }
+
+        function deleteBoarder(id) {
+            customConfirm('Are you sure you want to delete this boarder?', function (confirmed) {
+                if (confirmed) {
+                    data.boarders = data.boarders.filter(b => b.id !== id);
+                    saveData();
+                }
+            });
+        }
+
+        function renderBoarders() {
+            const container = document.getElementById('boarderList');
+            if (data.boarders.length === 0) {
+                container.innerHTML = '<div class="empty-state">No boarders added</div>';
+                return;
+            }
+
+            container.innerHTML = data.boarders.map(b => `
+            <div class="list-item">
+                <div class="list-item-content">
+                    <strong>${b.name}</strong> - Deposit: ৳${parseFloat(b.deposit).toFixed(2)} | Meals: ${parseInt(b.meals, 10)}
+                </div>
+                <div class="list-item-actions">
+                    <button class="btn btn-small btn-icon btn-edit" onclick="editBoarder(${b.id})" title="Edit">✏️</button>
+                    <button class="btn btn-small btn-icon btn-delete" onclick="deleteBoarder(${b.id})" title="Delete">🗑️</button>
+                </div>
+            </div>
+        `).join('');
+        }
+
+        // === BAZAR (Simplified) ===
+        function addBazar() {
+            const amountInput = document.getElementById('bazarAmount').value;
+            const amount = parseFloat(amountInput) || 0;
+
+            if (!amount || amount <= 0) {
+                customAlert('Please enter valid amount', 'warning');
+                return;
+            }
+
+            data.bazar.push({
+                id: Date.now(),
+                amount: amount
+            });
+
+            document.getElementById('bazarAmount').value = '';
+            document.getElementById('bazarAmount').focus();
+            saveData();
+        }
+
+        function editBazar(id) {
+            const bazar = data.bazar.find(b => b.id === id);
+            document.getElementById('editBazarAmount').value = bazar.amount;
+            editMode = { type: 'bazar', id };
+            openModal('editBazarModal');
+        }
+
+        function saveBazarEdit() {
+            const amountInput = document.getElementById('editBazarAmount').value;
+            const amount = parseFloat(amountInput) || 0;
+
+            if (!amount || amount <= 0) {
+                customAlert('Please enter valid amount', 'warning');
+                return;
+            }
+
+            const bazar = data.bazar.find(b => b.id === editMode.id);
+            if (bazar) {
+                bazar.amount = amount;
+            }
+
+            closeModal('editBazarModal');
+            saveData();
+        }
+
+        function deleteBazar(id) {
+            customConfirm('Are you sure you want to delete this entry?', function (confirmed) {
+                if (confirmed) {
+                    data.bazar = data.bazar.filter(b => b.id !== id);
+                    saveData();
+                }
+            });
+        }
+
+        function renderBazar() {
+            const container = document.getElementById('bazarList');
+            if (data.bazar.length === 0) {
+                container.innerHTML = '<div class="empty-state">No costs added</div>';
+                return;
+            }
+
+            container.innerHTML = data.bazar.map((b, index) => `
+            <div class="list-item">
+                <div class="list-item-content">
+                    <strong>Bazar ${index + 1}</strong> - ৳${parseFloat(b.amount).toFixed(2)}
+                </div>
+                <div class="list-item-actions">
+                    <button class="btn btn-small btn-icon btn-edit" onclick="editBazar(${b.id})" title="Edit">✏️</button>
+                    <button class="btn btn-small btn-icon btn-delete" onclick="deleteBazar(${b.id})" title="Delete">🗑️</button>
+                </div>
+            </div>
+        `).join('');
+        }
+
+        // === EXPENSES (Simplified) ===
+        function addExpense() {
+            const amountInput = document.getElementById('expenseAmount').value;
+            const amount = parseFloat(amountInput) || 0;
+
+            if (!amount || amount <= 0) {
+                customAlert('Please enter valid amount', 'warning');
+                return;
+            }
+
+            data.expenses.push({
+                id: Date.now(),
+                amount: amount
+            });
+
+            document.getElementById('expenseAmount').value = '';
+            document.getElementById('expenseAmount').focus();
+            saveData();
+        }
+
+        function editExpense(id) {
+            const expense = data.expenses.find(e => e.id === id);
+            document.getElementById('editExpenseAmount').value = expense.amount;
+            editMode = { type: 'expense', id };
+            openModal('editExpenseModal');
+        }
+
+        function saveExpenseEdit() {
+            const amountInput = document.getElementById('editExpenseAmount').value;
+            const amount = parseFloat(amountInput) || 0;
+
+            if (!amount || amount <= 0) {
+                customAlert('Please enter valid amount', 'warning');
+                return;
+            }
+
+            const expense = data.expenses.find(e => e.id === editMode.id);
+            if (expense) {
+                expense.amount = amount;
+            }
+
+            closeModal('editExpenseModal');
+            saveData();
+        }
+
+        function deleteExpense(id) {
+            customConfirm('Are you sure you want to delete this entry?', function (confirmed) {
+                if (confirmed) {
+                    data.expenses = data.expenses.filter(e => e.id !== id);
+                    saveData();
+                }
+            });
+        }
+
+        function renderExpenses() {
+            const container = document.getElementById('expenseList');
+            if (data.expenses.length === 0) {
+                container.innerHTML = '<div class="empty-state">No expenses added</div>';
+                return;
+            }
+
+            container.innerHTML = data.expenses.map((e, index) => `
+            <div class="list-item">
+                <div class="list-item-content">
+                    <strong>Extra ${index + 1}</strong> - ৳${parseFloat(e.amount).toFixed(2)}
+                </div>
+                <div class="list-item-actions">
+                    <button class="btn btn-small btn-icon btn-edit" onclick="editExpense(${e.id})" title="Edit">✏️</button>
+                    <button class="btn btn-small btn-icon btn-delete" onclick="deleteExpense(${e.id})" title="Delete">🗑️</button>
+                </div>
+            </div>
+        `).join('');
+        }
+
+        // === CALCULATE SUMMARY ===
+        function calculateSummary() {
+            // Use explicit for-loop to avoid string concatenation
+            let totalMeals = 0;
+            let totalBazar = 0;
+            let totalExpenses = 0;
+            let totalDeposit = 0;
+
+            // Calculate meals with parseInt
+            for (let i = 0; i < data.boarders.length; i++) {
+                totalMeals += parseInt(data.boarders[i].meals, 10) || 0;
+                totalDeposit += parseFloat(data.boarders[i].deposit) || 0;
+            }
+
+            // Calculate bazar with parseFloat
+            for (let i = 0; i < data.bazar.length; i++) {
+                totalBazar += parseFloat(data.bazar[i].amount) || 0;
+            }
+
+            // Calculate expenses with parseFloat
+            for (let i = 0; i < data.expenses.length; i++) {
+                totalExpenses += parseFloat(data.expenses[i].amount) || 0;
+            }
+
+            const totalUsed = totalBazar + totalExpenses;
+            const mealRate = totalMeals > 0 ? (totalBazar / totalMeals) : 0;
+            const totalDue = totalUsed - totalDeposit;
+            const extraPerPerson = data.boarders.length > 0 ? (totalExpenses / data.boarders.length) : 0;
+
+            // Calculate total "Give" and "Get" amounts
+            let managerWillGet = 0;
+            let managerWillGive = 0;
+
+            data.boarders.forEach(boarder => {
+                const boarderMeals = parseInt(boarder.meals, 10) || 0;
+                const mealCost = boarderMeals * mealRate;
+                const totalPersonCost = mealCost + extraPerPerson;
+                const balance = parseFloat(boarder.deposit) - totalPersonCost;
+
+                if (balance < 0) {
+                    managerWillGet += Math.abs(balance);
+                } else if (balance > 0) {
+                    managerWillGive += balance;
+                }
+            });
+
+            // Update screen summary - Highlighted Stats
+            document.getElementById('totalBazarStat').textContent = `৳${totalBazar.toFixed(2)}`;
+            document.getElementById('totalExpenseStat').textContent = `৳${totalExpenses.toFixed(2)}`;
+            document.getElementById('totalMealsSum').textContent = totalMeals;
+            document.getElementById('mealRateSum').textContent = `৳${mealRate.toFixed(2)}`;
+
+            // Update screen summary - Regular Items
+            document.getElementById('totalBoarder').textContent = data.boarders.length;
+            document.getElementById('totalCollected').textContent = `৳${totalDeposit.toFixed(2)}`;
+            document.getElementById('totalCostSum').textContent = `৳${totalUsed.toFixed(2)}`;
+            document.getElementById('totalDue').textContent = `৳${totalDue.toFixed(2)}`;
+            document.getElementById('managerWillGet').textContent = `৳${managerWillGet.toFixed(2)}`;
+            document.getElementById('managerWillGive').textContent = `৳${managerWillGive.toFixed(2)}`;
+
+            // Update print summary
+            document.getElementById('printTotalBazar').textContent = `৳${totalBazar.toFixed(2)}`;
+            document.getElementById('printTotalExpense').textContent = `৳${totalExpenses.toFixed(2)}`;
+            document.getElementById('printTotalMeals').textContent = totalMeals;
+            document.getElementById('printMealRate').textContent = `৳${mealRate.toFixed(2)}`;
+            document.getElementById('printTotalBoarder').textContent = data.boarders.length;
+            document.getElementById('printTotalCollected').textContent = `৳${totalDeposit.toFixed(2)}`;
+            document.getElementById('printTotalCost').textContent = `৳${totalUsed.toFixed(2)}`;
+            document.getElementById('printTotalDue').textContent = `৳${totalDue.toFixed(2)}`;
+            document.getElementById('printManagerWillGet').textContent = `৳${managerWillGet.toFixed(2)}`;
+            document.getElementById('printManagerWillGive').textContent = `৳${managerWillGive.toFixed(2)}`;
+
+            // Report Table
+            const tbody = document.getElementById('reportTable');
+            if (data.boarders.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="8" class="empty-state">No data available</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = data.boarders.map(boarder => {
+                const boarderMeals = parseInt(boarder.meals, 10) || 0;
+                const mealCost = boarderMeals * mealRate;
+                const totalPersonCost = mealCost + extraPerPerson;
+                const balance = parseFloat(boarder.deposit) - totalPersonCost;
+
+                const getAmount = balance > 0 ? balance : 0;
+                const giveAmount = balance < 0 ? Math.abs(balance) : 0;
+
+                return `
+                <tr>
+                    <td><strong>${boarder.name}</strong></td>
+                    <td>${boarderMeals}</td>
+                    <td>৳${mealCost.toFixed(2)}</td>
+                    <td>৳${extraPerPerson.toFixed(2)}</td>
+                    <td>৳${totalPersonCost.toFixed(2)}</td>
+                    <td>৳${parseFloat(boarder.deposit).toFixed(2)}</td>
+                    <td class="positive">${getAmount > 0 ? '৳' + getAmount.toFixed(2) : '-'}</td>
+                    <td class="negative">${giveAmount > 0 ? '৳' + giveAmount.toFixed(2) : '-'}</td>
+                </tr>
+            `;
+            }).join('');
+        }
+
+        // === PRINT FUNCTIONS ===
+        function printSummary() {
+            // Get mess info
+            const messName = document.getElementById('messName').value || '-';
+            const managerName = document.getElementById('managerName').value || '-';
+            const monthInput = document.getElementById('messMonth').value;
+
+            let monthName = '-';
+            if (monthInput) {
+                const [year, month] = monthInput.split('-');
+                const date = new Date(year, month - 1);
+                monthName = date.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+            }
+
+            const today = new Date().toLocaleDateString('en-GB', {
+                day: '2-digit',
+                month: 'long',
+                year: 'numeric'
+            });
+
+            // Update print fields
+            document.getElementById('printMessName').textContent = messName;
+            document.getElementById('printManagerName').textContent = managerName;
+            document.getElementById('printMonthName').textContent = monthName;
+            document.getElementById('printDateFull').textContent = today;
+
+            // Add class for summary-only mode
+            document.body.classList.add('print-summary-mode');
+
+            window.print();
+
+            // Remove class after print
+            setTimeout(() => {
+                document.body.classList.remove('print-summary-mode');
+            }, 100);
+        }
+
+        function printFullReport() {
+            // Get mess info
+            const messName = document.getElementById('messName').value || '-';
+            const managerName = document.getElementById('managerName').value || '-';
+            const monthInput = document.getElementById('messMonth').value;
+
+            let monthName = '-';
+            if (monthInput) {
+                const [year, month] = monthInput.split('-');
+                const date = new Date(year, month - 1);
+                monthName = date.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+            } else {
+                // Use current month if not selected
+                const now = new Date();
+                monthName = now.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+            }
+
+            const today = new Date().toLocaleDateString('en-GB', {
+                day: '2-digit',
+                month: 'long',
+                year: 'numeric'
+            });
+
+            // Update print fields
+            document.getElementById('printMessName').textContent = messName;
+            document.getElementById('printManagerName').textContent = managerName;
+            document.getElementById('printMonthName').textContent = monthName;
+            document.getElementById('printDateFull').textContent = today;
+
+            // Add class for full report mode
+            document.body.classList.add('print-full-mode');
+
+            window.print();
+
+            // Remove class after print
+            setTimeout(() => {
+                document.body.classList.remove('print-full-mode');
+            }, 100);
+        }
+
+        function resetData() {
+            customConfirm('Delete all data? This action cannot be undone!', function (confirmed) {
+                if (confirmed) {
+                    localStorage.removeItem('messData');
+                    data = { boarders: [], bazar: [], expenses: [], messInfo: { messName: '', managerName: '', month: '' } };
+                    document.getElementById('messName').value = '';
+                    document.getElementById('managerName').value = '';
+                    const now = new Date();
+                    const year = now.getFullYear();
+                    const month = String(now.getMonth() + 1).padStart(2, '0');
+                    document.getElementById('messMonth').value = `${year}-${month}`;
+                    updateAllViews();
+                    customAlert('All data cleared successfully!', 'success');
+                }
+            });
+        }
+
+        // === EXPORT DATA ===
+        function exportData() {
+            if (data.boarders.length === 0 && data.bazar.length === 0 && data.expenses.length === 0) {
+                customAlert('No data to export!', 'warning');
+                return;
+            }
+
+            const exportObj = {
+                version: '1.0',
+                exportDate: new Date().toISOString(),
+                data: data
+            };
+
+            const jsonString = JSON.stringify(exportObj, null, 2);
+            const blob = new Blob([jsonString], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+
+            const today = new Date();
+            const filename = `MessCal-data-${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}.json`;
+            a.download = filename;
+
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+
+            customAlert('Data exported successfully!', 'success');
+        }
+
+        // === IMPORT DATA ===
+        function importData(event) {
+            const file = event.target.files[0];
+
+            if (!file) {
+                return;
+            }
+
+            if (!file.name.endsWith('.json')) {
+                customAlert('Please select a valid JSON file!', 'warning');
+                event.target.value = '';
+                return;
+            }
+
+            const reader = new FileReader();
+
+            reader.onload = function (e) {
+                try {
+                    const imported = JSON.parse(e.target.result);
+
+                    if (!imported.data || !imported.data.boarders || !imported.data.bazar || !imported.data.expenses) {
+                        throw new Error('Invalid data structure');
+                    }
+
+                    const confirmMsg = `Found ${imported.data.boarders.length} Boarders, ${imported.data.bazar.length} Bazar entries, and ${imported.data.expenses.length} Expenses. This will replace your current data. Continue?`;
+
+                    customConfirm(confirmMsg, function (confirmed) {
+                        if (confirmed) {
+                            data = {
+                                boarders: imported.data.boarders.map(b => ({
+                                    id: b.id,
+                                    name: String(b.name),
+                                    deposit: parseFloat(b.deposit) || 0,
+                                    meals: parseInt(b.meals, 10) || 0
+                                })),
+                                bazar: imported.data.bazar.map(b => ({
+                                    id: b.id,
+                                    amount: parseFloat(b.amount) || 0
+                                })),
+                                expenses: imported.data.expenses.map(e => ({
+                                    id: e.id,
+                                    amount: parseFloat(e.amount) || 0
+                                })),
+                                messInfo: imported.data.messInfo || {
+                                    messName: '',
+                                    managerName: '',
+                                    month: ''
+                                }
+                            };
+
+                            saveData();
+                            loadMessInfo();
+                            customAlert('Data imported successfully!', 'success');
+                        }
+                    });
+                } catch (error) {
+                    console.error('Import error:', error);
+                    customAlert('Error importing data. Please check the file format.', 'error');
+                }
+
+                event.target.value = '';
+            };
+
+            reader.onerror = function () {
+                customAlert('Error reading file!', 'error');
+                event.target.value = '';
+            };
+
+            reader.readAsText(file);
+        }
+    </script>
+</body>
+
+</html>

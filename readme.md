@@ -1,4 +1,4 @@
-# 🧮 MealBook
+# 🧮 MessCal
 
 > Simple Monthly Meal & Expense Manager for Boarding Houses
 
@@ -83,7 +83,7 @@ open index.html
 
 1. Click **"💾 Export Data"** button
 2. Save the JSON file to your device
-3. File format: `mealbook-data-YYYY-MM-DD.json`
+3. File format: `MessCal-data-YYYY-MM-DD.json`
 
 </details>
 

@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
     <title>MessCal - Simple Monthly Meal & Expense Manager</title>
+    <link rel="manifest" href="manifest.json">
     <style>
         * {
             margin: 0;
@@ -1998,6 +1999,70 @@
             };
 
             reader.readAsText(file);
+        }
+    </script>
+
+    <script>
+        // PWA Service Worker Registration
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('./service-worker.js')
+                .then(reg => {
+                    console.log('Service Worker registered');
+
+                    // Check for updates
+                    reg.addEventListener('updatefound', () => {
+                        const newWorker = reg.installing;
+                        newWorker.addEventListener('statechange', () => {
+                            if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                                document.getElementById('updateBanner').classList.add('show');
+                            }
+                        });
+                    });
+                })
+                .catch(err => console.log('Service Worker registration failed:', err));
+        }
+
+        // PWA Install Prompt
+        let deferredPrompt;
+        const installBtn = document.getElementById('installBtn');
+
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            installBtn.classList.add('show');
+        });
+
+        installBtn.addEventListener('click', async () => {
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                const { outcome } = await deferredPrompt.userChoice;
+                console.log(`User response: ${outcome}`);
+                deferredPrompt = null;
+                installBtn.classList.remove('show');
+            }
+        });
+
+        window.addEventListener('appinstalled', () => {
+            customAlert('App installed successfully! 🎉', 'success');
+            installBtn.classList.remove('show');
+        });
+
+        // Update app function
+        function updateApp() {
+            if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.getRegistrations().then(regs => {
+                    regs.forEach(reg => reg.unregister());
+                });
+            }
+            window.location.reload();
+        }
+
+        // Add Enter key handler for boarder inputs
+        function handleBoarderEnter(event) {
+            if (event.key === 'Enter') {
+                event.preventDefault();
+                addBoarder();
+            }
         }
     </script>
 </body>
